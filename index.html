@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydronetics - Ocean Conservation</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: all 0.3s ease;
+        }
+        h1 {
+            font-size: 3rem;
+            margin: 20px;
+            text-align: center;
+            color: #0055b7;
+        }
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        .options button {
+            background-color: #0077ff;
+            color: white;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s ease;
+            margin: 20px;
+        }
+        .options button:hover {
+            transform: scale(1.05);
+            background-color: #005bb5;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .container {
+                width: 90%;
+            }
+            .options button {
+                font-size: 1rem;
+                padding: 12px;
+            }
+        }
+
+        /* Typewriter Effect */
+        .typewriter {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 3px solid #0055b7;
+            animation: typing 2s steps(30) 1s forwards, blink 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            color: #ff6600;
+        }
+
+        /* Chart container */
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        /* Conservation Tips Section */
+        .tips {
+            margin-top: 40px;
+            background-color: #d3f8d3;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .tips h3 {
+            color: #2a9d8f;
+        }
+        .tips p {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        /* Smooth Transition for Form */
+        .form-container {
+            transition: opacity 0.5s ease-in-out;
+        }
+        .hidden {
+            opacity: 0;
+            display: none;
+        }
+
+        /* Form Input Styling */
+        input {
+            padding: 8px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 200px;
+            margin: 10px 0;
+        }
+        input[type="number"]:invalid {
+            border-color: red;
+        }
+
+        /* Focus State on Inputs */
+        input:focus {
+            border-color: #0077ff;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hydronetics - Contribute to Ocean Conservation</h1>
+
+        <div class="options">
+            <button onclick="showForm('data')">Submit Data</button>
+            <button onclick="showForm('image')">Upload Image</button>
+        </div>
+
+        <div id="dataForm" class="form-container hidden">
+            <h2>Enter Ocean Data</h2>
+            <form onsubmit="submitData(event)">
+                <label for="temperature">Water Temperature (°C):</label>
+                <input type="number" id="temperature" name="temperature" required min="0" max="100"><br><br>
+
+                <label for="salinity">Water Salinity (%):</label>
+                <input type="number" id="salinity" name="salinity" required min="0" max="100"><br><br>
+
+                <label for="pollution">Pollution Level (0-100):</label>
+                <input type="number" id="pollution" name="pollution" required min="0" max="100"><br><br>
+
+                <button type="submit">Submit Data</button>
+            </form>
+        </div>
+
+        <div id="imageForm" class="form-container hidden">
+            <h2>Upload Ocean Image</h2>
+            <p class="loading">Analyzing Image (Feature still in development)...</p>
+            <input type="file" id="imageInput" accept="image/*" onchange="uploadImage(event)" aria-label="Upload Ocean Image"><br><br>
+            <div id="loadingSpinner" class="loading hidden">Analyzing...</div>
+        </div>
+
+        <div id="aiResponse" class="typewriter hidden">
+            <!-- AI Response will appear here -->
+        </div>
+
+        <div id="chartContainer" class="chart-container hidden">
+            <canvas id="chart"></canvas>
+        </div>
+
+        <div id="conservationTips" class="tips hidden">
+            <h3>Ocean Conservation Tips:</h3>
+            <p id="tipsText">Here you will get tips based on your input, like reducing plastic waste or conserving marine life.</p>
+        </div>
+    </div>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Show Form based on User's Choice
+        function showForm(formType) {
+            document.getElementById('dataForm').classList.add('hidden');
+            document.getElementById('imageForm').classList.add('hidden');
+            document.getElementById('conservationTips').classList.add('hidden');
+
+            if (formType === 'data') {
+                document.getElementById('dataForm').classList.remove('hidden');
+            } else {
+                document.getElementById('imageForm').classList.remove('hidden');
+            }
+        }
+
+        // Simulate Data Submission
+        function submitData(event) {
+            event.preventDefault();
+            const temperature = document.getElementById('temperature').value;
+            const salinity = document.getElementById('salinity').value;
+            const pollution = document.getElementById('pollution').value;
+
+            // Validation Check (Make sure values are within expected ranges)
+            if (temperature < 0 || temperature > 100 || salinity < 0 || salinity > 100 || pollution < 0 || pollution > 100) {
+                alert("Please ensure all values are within the valid range.");
+                return;
+            }
+
+            // Hide Form and Show AI Response
+            document.getElementById('dataForm').classList.add('hidden');
+            document.getElementById('aiResponse').classList.remove('hidden');
+            document.getElementById('conservationTips').classList.remove('hidden');
+
+            // AI Response Typewriter Effect
+            const aiMessage = `Analyzing data... 
+            Water Temperature: ${temperature}°C
+            Salinity: ${salinity}%
+            Pollution Level: ${pollution}`;
+            document.getElementById('aiResponse').innerHTML = aiMessage;
+
+            // Simulated Chart (Interactive Data Visualization)
+            createChart(temperature, salinity, pollution);
+
+            // Provide Ocean Conservation Tips
+            let tips = "To help protect the ocean, consider reducing your plastic consumption, conserving marine life, and reducing your carbon footprint.";
+            document.getElementById('tipsText').innerText = tips;
+        }
+
+        // Create Interactive Chart
+        function createChart(temperature, salinity, pollution) {
+            const ctx = document.getElementById('chart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Temperature (°C)', 'Salinity (%)', 'Pollution Level'],
+                    datasets: [{
+                        label: 'Ocean Condition',
+                        data: [temperature, salinity, pollution],
+                        backgroundColor: ['#ff6347', '#3cb371', '#ffcc00'],
+                        borderColor: ['#e74c3c', '#2ecc71', '#f39c12'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+            document.getElementById('chartContainer').classList.remove('hidden');
+        }
+
+        // Handle Image Upload
+        function uploadImage(event) {
+            const image = event.target.files[0];
+            if (image) {
+                document.getElementById('loadingSpinner').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('loadingSpinner').classList.add('hidden');
+                    alert("Image Uploaded Successfully! Feature still under development for analysis.");
+                }, 3000);  // Simulated delay for image processing
+            }
+        }
+    </script>
+</body>
+</html>
